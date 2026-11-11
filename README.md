@@ -1,135 +1,106 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/flowlens-dark.png">
+  <img alt="Application FlowLens : la carte des étapes d'une demande de prêt, avec l'épaisseur des transitions proportionnelle au nombre de dossiers" src=".github/readme/flowlens-light.png">
+</picture>
+
 # FlowLens
 
-**Comprendre les parcours métier, repérer les retours et explorer les délais.**
+Le parcours de 31 509 demandes de prêt, reconstitué étape par étape à partir d'un journal d'événements public : le BPI Challenge 2017, publié par une banque néerlandaise pour la recherche en process mining.
 
-FlowLens est une application de process mining sur le journal réel **BPI Challenge 2017**. Elle associe un pipeline Python reproductible, un modèle SQL et une interface React interactive. Le cas d’étude porte sur les demandes de prêt d’un établissement financier néerlandais.
+**[Ouvrir l'application](https://badreddine05.github.io/flowlens/)** · [Lire l'étude de cas](https://badreddine05.github.io/projets/flowlens/) · [Méthodologie](docs/METHODOLOGY.md)
 
-[Ouvrir la démonstration](https://Badreddine05.github.io/flowlens/) · [Données originales](https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b) · [Méthodologie](docs/METHODOLOGY.md) · [Architecture](docs/ARCHITECTURE.md)
+## Ce que l'on peut faire
 
-## Ce que l’on peut explorer
+L'application tourne entièrement dans le navigateur, sans compte ni serveur. Elle permet de :
 
-- **Vue d’ensemble** : dossiers, délai médian, 90e percentile, retours en vérification, issues et cohortes mensuelles.
-- **Graphe de processus** : transitions réellement observées entre états de la demande, épaisseur proportionnelle au volume, filtre par étape et animation activable. La couverture de la simplification est affichée.
-- **Parcours et dossiers** : variantes exactes, recherche, tri, pagination et chronologie d’un dossier avec dates UTC.
-- **Laboratoire** : scénario explicite de réduction d’une partie des intervalles après une étape. Comparaison des distributions et export des hypothèses.
-- **Données et méthode** : source, empreinte, contrôles, définitions, censure et limites d’interprétation.
-- **Exports CSV** : dossiers du périmètre courant et hypothèses du scénario. Les filtres mois/type/issue/étape se combinent.
+- voir les dix étapes d'une demande et les transitions observées entre elles, avec une épaisseur proportionnelle au nombre de dossiers ;
+- comparer les 102 parcours différents, du plus fréquent au plus rare ;
+- chercher un dossier et lire sa chronologie complète, dates à l'appui ;
+- filtrer par mois, type de demande, issue ou étape, puis exporter les dossiers retenus en CSV ;
+- tester un scénario : retirer une part du temps passé après une étape et regarder l'effet sur les délais.
 
-Les calculs restent dans le navigateur. Aucun compte, clé API, suivi publicitaire ou service payant n’est nécessaire. Les polices sont embarquées ; la démonstration n’appelle aucune API tierce.
+Un onglet « Données et méthode » rappelle la source, l'empreinte du fichier, les contrôles effectués et les définitions.
 
-## Résultats du jeu figé
+## Ce que montrent les données
 
-| Mesure | Valeur | Périmètre |
-| --- | ---: | --- |
-| Dossiers | 31 509 | Tous les dossiers de la source |
-| Événements source | 1 202 267 | Application + Offer + Workflow |
-| États Application conservés | 239 595 | Projection utilisée dans l’interface |
-| Dossiers à issue connue | 31 411 | Dernier état Pending, Denied ou Cancelled |
-| Dossiers sans issue connue | 98 | Exclus des indicateurs de délai terminé |
-| Délai médian | 19,07 jours | Dossiers à issue connue |
-| 90e percentile du délai | 34,99 jours | Dossiers à issue connue |
-| Variantes de parcours | 102 | Séquences d’états Application |
-| Nouvelle vérification | 11 669 dossiers | Plus d’un passage par A_Validating |
+- Les dix parcours les plus fréquents couvrent 77,8 % des dossiers. Le premier, 6 840 dossiers à lui seul, se termine par une annulation juste après « dossier complet ».
+- La durée médiane d'une demande terminée est de 19,1 jours. Les demandes financées ou refusées se règlent en deux semaines environ, alors que les annulations forment un pic net autour de 30 jours.
+- 70 % du temps cumulé s'écoule après « dossier complet », l'étape qui précède le retour de l'offre signée par le client.
+- 11 669 dossiers repassent plusieurs fois par la vérification. Leur durée médiane est plus courte que celle des autres, parce qu'ils sont presque toujours financés et rarement annulés.
 
-Ce sont des résultats descriptifs du journal historique. Aucun gain commercial, résultat de production ou effet causal n’est revendiqué.
+Ces constats décrivent un journal historique. Le projet ne mesure ni gain commercial ni effet causal.
 
-## Démarrage
+## Lancer le projet
 
-Prérequis : **Node.js 22.12+** (ou 24) et npm. Python **3.11+** est requis uniquement pour reconstruire les données et tester le parseur.
+Il faut Node.js 22.12 ou plus récent. Les données préparées sont déjà dans `public/data/`.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Ouvrir l’URL locale affichée par Vite. Le jeu de démonstration est déjà présent dans `public/data/`.
+Ouvrez ensuite l'adresse affichée par Vite. Pour la version de production :
 
 ```sh
 npm test
-python -m unittest discover -s tests -p "test_*.py"
 npm run build
 npm run preview
 ```
 
-Le build est un site statique dans `dist/`. La configuration `base: './'` permet l’hébergement sous `/flowlens/` et sur un autre sous-chemin.
-
-### Docker
+`dist/` est un site statique, utilisable sous un sous-chemin (`base: './'`). Une image Docker sert ce site avec Nginx :
 
 ```sh
 docker build -t flowlens .
 docker run --rm -p 8080:80 flowlens
 ```
 
-L’interface est servie sur `http://localhost:8080`. Le pipeline de données reste une étape séparée.
+## Reconstruire les données
 
-## Reconstruire le jeu de données
-
-Le pipeline utilise uniquement la bibliothèque standard Python : aucune dépendance à installer.
-
-```sh
-python pipeline/build.py
-```
-
-Il télécharge le fichier XES gzip officiel si le cache est absent, contrôle son empreinte et son identité, projette les états Application, puis écrit :
+Le pipeline n'utilise que la bibliothèque standard de Python 3.11 ou plus récent. Il télécharge le fichier XES officiel s'il n'est pas en cache, vérifie son empreinte et ses cardinalités, puis écrit :
 
 | Fichier | Contenu |
 | --- | --- |
-| `public/data/cases.json` | Tous les dossiers, états métier et identifiants de substitution |
-| `public/data/manifest.json` | Source, citation, empreinte, cardinalités et contrôles |
-| `data/processed/flowlens.sqlite` | Tables `cases`, `transitions` et vues analytiques |
-| `data/processed/cases.csv` | Export tabulaire pour outils BI |
-
-Le fichier brut et la base SQLite sont ignorés par Git. Une empreinte différente provoque une erreur explicite. L’option `--source` permet de fournir un fichier local BPI 2017 ; les cardinalités attendues restent contrôlées.
+| `public/data/cases.json` | Tous les dossiers, leurs états et des identifiants de substitution |
+| `public/data/manifest.json` | Source, citation, empreinte et résultats des contrôles |
+| `data/processed/flowlens.sqlite` | Tables `cases` et `transitions`, vues analytiques |
+| `data/processed/cases.csv` | Export tabulaire pour un outil de BI |
 
 ```sh
+python pipeline/build.py
+python -m unittest discover -s tests -p "test_*.py"
 sqlite3 data/processed/flowlens.sqlite < sql/analysis.sql
 ```
 
-`sqlite3` est optionnel : la base peut être ouverte avec Python ou un client SQL. Le modèle est également exploitable dans Power BI à partir du CSV ou d’un connecteur SQLite ; aucun rapport `.pbix` n’est revendiqué ici.
+Le fichier brut et la base SQLite ne sont pas versionnés. Une empreinte différente de celle attendue arrête le traitement.
 
-## Structure
+## Pour les développeurs
 
-```text
-pipeline/build.py           téléchargement, parsing XES, projection, SQLite et JSON
-sql/schema.sql              modèle relationnel et vues
-sql/analysis.sql            requêtes d’analyse documentées
-src/analytics.mjs           filtres, quantiles, graphe, variantes et scénarios
-src/main.jsx                interface React et composants de visualisation
-src/styles.css              design responsive et mouvement réduit
-public/data/                données dérivées et manifeste de provenance
-tests/                      tests analytiques, conservation et parseur
-docs/                       méthode, architecture et préparation à l’entretien
-.github/workflows/ci.yml     tests Python/JavaScript et build sur chaque push/PR
-```
+| Chemin | Rôle |
+| --- | --- |
+| `pipeline/build.py` | Téléchargement, lecture du XES, projection, SQLite et JSON |
+| `sql/` | Modèle relationnel, vues et requêtes d'analyse |
+| `src/analytics.mjs` | Filtres, quantiles, graphe, variantes et scénarios |
+| `src/main.jsx`, `src/styles.css` | Interface React et visualisations |
+| `tests/` | Tests du parseur et des calculs |
+| `docs/` | [Méthodologie](docs/METHODOLOGY.md) et [architecture](docs/ARCHITECTURE.md) |
 
-## Qualité et accessibilité
+Les tests couvrent la censure des dossiers ouverts, la conservation des transitions, la composition des filtres, la chronologie en UTC, les retours en vérification et l'absence de colonne sensible dans le jeu publié. La CI GitHub Actions les exécute sur chaque push, avec les données figées.
 
-Les tests couvrent notamment la censure, la conservation des transitions, la composition des filtres, la chronologie UTC, les retours en vérification, les scénarios sans effet, les doublons exacts et l’absence de colonnes sensibles dans le jeu public. La CI utilise les données figées, sans téléchargement externe.
+## Limites
 
-Navigation clavier, labels de formulaires, états vides, focus visible, fermeture du détail avec Échap et prise en compte de `prefers-reduced-motion`. Les flux sont en pause au démarrage. Leur animation n’utilise pas les durées réelles et ne doit pas être interprétée comme une simulation temporelle.
+- Seuls les états de la demande sont conservés : les activités liées aux offres et aux employés sont écartées, ce qui empêche toute analyse de charge.
+- Les délais sont calendaires et mélangent attente et travail.
+- « À financer » correspond à l'état `A_Pending` et ne prouve pas que le prêt a été versé.
+- Le laboratoire retranche des intervalles de façon mécanique. Il ne modélise ni les ressources, ni la capacité, ni l'issue des dossiers.
 
-## Limites et choix
+## Données, licences et crédits
 
-- La projection exclut les activités Offer et Workflow : elle simplifie le processus et ne permet pas une analyse de charge des employés.
-- Le temps entre états mélange attente et travail. Les délais sont calendaires, pas des jours ouvrés.
-- Les dossiers sans issue connue sont exclus des quantiles terminés. Cette exclusion ne supprime pas le biais de censure des cohortes récentes.
-- A_Pending est présenté « À financer ». Il ne prouve pas un décaissement.
-- Une nouvelle vérification décrit un retour ; elle n’établit ni erreur ni défaut.
-- Le laboratoire retranche mathématiquement des intervalles. Il ne modélise ni ressources, ni capacité, ni changement d’issue, ni coût. Il n’est pas un modèle prédictif.
-- Le chargement initial comprend les 31 509 dossiers ; une version à plus grande échelle nécessiterait une API agrégée, une pagination serveur et un moteur de calcul dédié.
+Données : van Dongen, B. (2017). *BPI Challenge 2017*. Version 1. 4TU.ResearchData. [doi:10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b](https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b). Les données et leurs dérivés relèvent des conditions générales de 4TU (attribution, usage non commercial), pas de la licence du code : voir [DATA_LICENSE.md](DATA_LICENSE.md).
 
-## Auteur, contribution et licence
+Code sous licence [MIT](LICENSE). Les polices Newsreader, IBM Plex Sans et IBM Plex Mono (SIL OFL 1.1) et les licences de React et Lucide sont dans [`public/licenses/`](public/licenses/) et accompagnent chaque build ; détail dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Projet personnel de **Badreddine Channoufi** — [GitHub](https://github.com/Badreddine05). Réalisation avec assistance de Codex, explicitée dans les choix techniques et les tests. L’historique Git correspond aux étapes réelles de réalisation ; les dates 2016–2017 décrivent uniquement le jeu source.
+Projet personnel de [Badreddine Channoufi](https://badreddine05.github.io/), réalisé avec l'aide d'outils d'IA. Les dates 2016 et 2017 décrivent le jeu de données, pas la réalisation du projet.
 
-Code original : **MIT**. Données et dérivés : **4TU General Terms of Use**, avec attribution et réutilisation non commerciale ; ils ne relèvent pas de la licence MIT du code. Consulter [DATA_LICENSE.md](DATA_LICENSE.md) et [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## In English
 
-Les notices OFL des polices embarquées sont conservées dans [public/licenses/Manrope-OFL.txt](public/licenses/Manrope-OFL.txt) et [public/licenses/DM-Sans-OFL.txt](public/licenses/DM-Sans-OFL.txt), puis incluses dans chaque build distribué.
-
-Le même dossier conserve les licences exactes de React, React DOM et Lucide React, également incluses dans le build.
-
-**Source** : van Dongen, Boudewijn (2017): *BPI Challenge 2017*. Version 1. 4TU.ResearchData. [DOI](https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b).
-
-## English overview
-
-FlowLens is a reproducible process-intelligence portfolio project built on the full BPI Challenge 2017 log. A Python pipeline projects application-state transitions into SQLite and a static JSON artifact; React computes interactive filters, directly-follows graphs, trace variants, elapsed-time distributions and explicit what-if scenarios. This is a historical, non-commercial research demonstration, not a production credit decision system.
+FlowLens rebuilds the path of each of the 31,509 loan applications in the public BPI Challenge 2017 event log. A standard-library Python pipeline projects application states into SQLite and a static JSON file; a React app shows the process map, trace variants, durations, case timelines and explicit what-if scenarios, all in the browser. It is a descriptive, non-commercial study of a historical log.

@@ -120,7 +120,13 @@ def build(source_path=None):
         writer = csv.DictWriter(f, fieldnames=['id', 'start', 'month', 'type', 'status', 'duration', 'rawEvents'])
         writer.writeheader()
         writer.writerows([{k:v for k,v in r.items() if k != 'events'} for r in rows])
-    payload = {'states': STATES, 'labels': LABELS, 'cases': rows}
+    payload = {
+        'citation': 'van Dongen, Boudewijn (2017): BPI Challenge 2017. Version 1. 4TU.ResearchData.',
+        'sourceDoi': DOI,
+        'licenseUrl': 'https://doi.org/10.4121/resource:terms_of_use',
+        'nonCommercialOnly': True,
+        'states': STATES, 'labels': LABELS, 'cases': rows
+    }
     (output / 'cases.json').write_text(json.dumps(payload, separators=(',', ':'), ensure_ascii=False), encoding='utf-8')
     manifest = {
         'dataset': 'BPI Challenge 2017', 'version': 1, 'source': SOURCE, 'doi': DOI,

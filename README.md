@@ -124,6 +124,10 @@ Projet personnel de **Badreddine Channoufi** — [GitHub](https://github.com/Bad
 
 Code original : **MIT**. Données et dérivés : **4TU General Terms of Use**, avec attribution et réutilisation non commerciale ; ils ne relèvent pas de la licence MIT du code. Consulter [DATA_LICENSE.md](DATA_LICENSE.md) et [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
+Les notices OFL des polices embarquées sont conservées dans [public/licenses/Manrope-OFL.txt](public/licenses/Manrope-OFL.txt) et [public/licenses/DM-Sans-OFL.txt](public/licenses/DM-Sans-OFL.txt), puis incluses dans chaque build distribué.
+
+Le même dossier conserve les licences exactes de React, React DOM et Lucide React, également incluses dans le build.
+
 **Source** : van Dongen, Boudewijn (2017): *BPI Challenge 2017*. Version 1. 4TU.ResearchData. [DOI](https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b).
 
 ## English overview

@@ -95,7 +95,7 @@ const terminalStatus = { 7: "pending", 8: "denied", 9: "cancelled" };
 
 function download(name, rows) {
   const credit =
-    "BPI Challenge 2017 — van Dongen (2017), 4TU.ResearchData; https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b";
+    "BPI Challenge 2017, van Dongen (2017), 4TU.ResearchData; https://doi.org/10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b";
   const terms =
     "4TU General Terms of Use; non-commercial; conserver cette attribution; https://doi.org/10.4121/resource:terms_of_use";
   const attributed = rows.map((row, i) => [

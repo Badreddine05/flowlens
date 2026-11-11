@@ -5,8 +5,9 @@
 | React / React DOM | Interface | MIT |
 | Vite et plugin React | Développement et build | MIT |
 | Lucide React | Icônes | ISC |
-| DM Sans | Police embarquée via Fontsource | SIL Open Font License 1.1 |
-| Manrope | Police embarquée via Fontsource | SIL Open Font License 1.1 |
+| Newsreader | Police embarquée (`src/fonts/`) : titres et valeurs | SIL Open Font License 1.1, voir `public/licenses/Newsreader-OFL.txt` |
+| IBM Plex Sans | Police embarquée (`src/fonts/`) : interface | SIL Open Font License 1.1, voir `public/licenses/IBM-Plex-Sans-OFL.txt` |
+| IBM Plex Mono | Police embarquée (`src/fonts/`) : axes et identifiants | SIL Open Font License 1.1, voir `public/licenses/IBM-Plex-Mono-OFL.txt` |
 | BPI Challenge 2017 | Source de l’analyse | 4TU General Terms of Use, voir DATA_LICENSE.md |
 
 Les versions exactes des paquets JavaScript et leurs dépendances sont consignées dans `package-lock.json`. Leurs fichiers de licence restent disponibles dans les distributions npm. Le motif de transitions typographiques suit les tokens de transitions.dev ; les animations de flux et graphiques sont implémentées localement.
